@@ -27,7 +27,12 @@ def reset_game():
 
 def move_snake():
     global snake, grow
-    new_head = (snake[0][0] + direction[0], snake[0][1] + direction[1])
+    head_x, head_y = snake[0]
+    dir_x, dir_y = direction
+    # Wrap around the screen
+    new_head_x = (head_x + dir_x) % 400
+    new_head_y = (head_y + dir_y) % 400
+    new_head = (new_head_x, new_head_y)
     snake.insert(0, new_head)
     if grow > 0:
         grow -= 1
@@ -36,9 +41,7 @@ def move_snake():
 
 def check_collision():
     global game_over
-    x, y = snake[0]
-    if x < 0 or x >= 400 or y < 0 or y >= 400:
-        game_over = True
+    # Check for collision with itself
     if snake[0] in snake[1:]:
         game_over = True
 
@@ -51,13 +54,14 @@ def main():
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if not game_over:
-                    if event.key == pygame.K_UP and (len(snake) == 1 or snake[0][0] != snake[1][0]):
+                    # Prevent the snake from reversing on itself
+                    if event.key == pygame.K_UP and direction != (0, 20):
                         direction = (0, -20)
-                    if event.key == pygame.K_DOWN and (len(snake) == 1 or snake[0][0] != snake[1][0]):
+                    if event.key == pygame.K_DOWN and direction != (0, -20):
                         direction = (0, 20)
-                    if event.key == pygame.K_LEFT and (len(snake) == 1 or snake[0][1] != snake[1][1]):
+                    if event.key == pygame.K_LEFT and direction != (20, 0):
                         direction = (-20, 0)
-                    if event.key == pygame.K_RIGHT and (len(snake) == 1 or snake[0][1] != snake[1][1]):
+                    if event.key == pygame.K_RIGHT and direction != (-20, 0):
                         direction = (20, 0)
                 if game_over and event.key == pygame.K_r:
                     reset_game()
@@ -87,16 +91,16 @@ def main():
 
         head_x, head_y = snake[0]
         eye_color = (0, 0, 0)
-        if direction == (20, 0):
+        if direction == (20, 0): # Right
             pygame.draw.circle(screen, eye_color, (head_x + 15, head_y + 5), 3)
             pygame.draw.circle(screen, eye_color, (head_x + 15, head_y + 15), 3)
-        if direction == (-20, 0):
+        if direction == (-20, 0): # Left
             pygame.draw.circle(screen, eye_color, (head_x + 5, head_y + 5), 3)
             pygame.draw.circle(screen, eye_color, (head_x + 5, head_y + 15), 3)
-        if direction == (0, -20):
+        if direction == (0, -20): # Up
             pygame.draw.circle(screen, eye_color, (head_x + 5, head_y + 5), 3)
             pygame.draw.circle(screen, eye_color, (head_x + 15, head_y + 5), 3)
-        if direction == (0, 20):
+        if direction == (0, 20): # Down
             pygame.draw.circle(screen, eye_color, (head_x + 5, head_y + 15), 3)
             pygame.draw.circle(screen, eye_color, (head_x + 15, head_y + 15), 3)
 
